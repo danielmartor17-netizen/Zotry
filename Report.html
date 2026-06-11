@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KekePrice LR</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: sans-serif; padding: 16px; max-width: 400px; margin: 0 auto; background: #f5f5f5; }
+    .card { background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    select, input, button { width: 100%; padding: 14px; margin: 8px 0; font-size: 16px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
+    button { background: #E65100; color: white; border: none; font-weight: bold; }
+    button:disabled { background: #ccc; }
+    #result { margin-top: 16px; padding: 12px; background: #E8F5E9; border-radius: 4px; }
+    h2 { color: #E65100; text-align: center; }
+    label { font-weight: bold; font-size: 14px; color: #555; }
+    #loading { text-align: center; padding: 40px; }
+  </style>
+</head>
+<body>
+  <div id="loading">Checking login...</div>
+  
+  <div class="card" id="app" style="display:none;">
+    <h2>Report Keke/Taxi Fare 🇱🇷</h2>
+    <form id="tripForm">
+      <label>Where are you now?</label>
+      <select id="origin" required>
+        <option value="">Select starting point</option>
+        <option>Broad Street</option>
+        <option>Red Light</option>
+        <option>ELWA Junction</option>
+        <option>Duport Road</option>
+        <option>72nd Junction</option>
+        <option>Barnesville Junction</option>
+        <option>Somalia Drive</option>
+        <option>Pipeline Road</option>
+        <option>Dual Market</option>
+        <option>Waterside Market</option>
+        <option>Sinkor</option>
+      </select>
+      <label>Where are you going?</label>
+      <select id="destination" required>
+        <option value="">Select destination</option>
+        <option>Broad Street</option>
+        <option>Red Light</option>
+        <option>ELWA Junction</option>
+        <option>Duport Road</option>
+        <option>72nd Junction</option>
+        <option>Barnesville Junction</option>
+        <option>Somalia Drive</option>
+        <option>Pipeline Road</option>
+        <option>Dual Market</option>
+        <option>Waterside Market</option>
+        <option>Sinkor</option>
+      </select>
+      <select id="vehicle" required>
+        <option value="">Vehicle type</option>
+        <option>Keke</option>
+        <option>Taxi</option>
+        <option>Bus</option>
+      </select>
+      <input type="number" id="fare" placeholder="Fare in LRD" required min="20" max="5000">
+      <button type="submit">Submit Fare</button>
+    </form>
+    <div id="result"></div>
+    <div style="text-align: center; margin-top: 16px;">
+      <a href="check.html" style="color: #1E88E5; font-weight: bold; text-decoration: none;">Check fares instead →</a>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://udoohspcusdgmdqwppjh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkb29oc3BjdXNkZ21kcXdwcGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMzAyNTAsImV4cCI6MjA5NjYwNjI1MH0.RNJQm8v-xHp4sF1VCrkBgXeer7Z32MaXA9ZyWVPFVuQ';
+    
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    });
+
+    // This is the fix: wait for Supabase to confirm session before showing app
+    _supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Report.html auth:', event, session);
+      
+      if (event === 'INITIAL_SESSION') {
+        if (session) {
+          // User is logged in - show the app
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('app').style.display = 'block';
+          // Now load App.js after we confirmed login
+          const script = document.createElement('script');
+          script.src = 'Js/App.js';
+          document.body.appendChild(script);
+        } else {
+          // Not logged in - go back
+          window.location.replace('index.html');
+        }
+      }
+      
+      if (event === 'SIGNED_OUT') {
+        window.location.replace('index.html');
+      }
+    });
+  </script>
+</body>
+</html>
